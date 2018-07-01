@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+# Usage: ./helper command (sub-command)
+#
+# Todo: Better parameter parsing (support things like --help or --file=/some/path/to/file)
+# Todo: Help Text
+
+# Define Globals
+BASE_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+LIB_DIR="$BASE_DIR/lib"
+COMMAND_DIR="$LIB_DIR/command"
+CONF_DIR="$BASE_DIR/conf"
+ENV_FILE="$BASE_DIR/.env"
+DEFAULT_ENV_FILE="$BASE_DIR/.env.default"
+DOCKER_COMPOSE_FILE="$BASE_DIR/docker-compose.yml"
+
+# Import utility functions
+source "$LIB_DIR/utils.sh"
+
+assert_file_exists $DOCKER_COMPOSE_FILE "docker-compose.yml must exist."
+assert_dir_exists $CONF_DIR "conf directory must exist."
+assert_file_exists $DEFAULT_ENV_FILE ".env.default template must exist."
+
+# If env file exists source it in for other scripts
+# Todo: if it doesn't exist prompt user to run init command then die (obviously if it's the init command don't die)
+if [[ -f $ENV_FILE ]]; then
+    export ENV_FILE
+fi
+
+if [ -z "$1" ]; then
+    die "You must pass a parameter of which command to run."
+else
+    if [[ -f "$COMMAND_DIR/$1" ]]; then
+        # Import command if it exists
+        source "$COMMAND_DIR/$1"
+
+        if [ -z "$2" ]; then
+            # If there is a main function defined run that
+            if [ -n "$(type -t main)" ] && [ "$(type -t main)" = function ]; then
+                main
+            else
+                die "Either a main function must be defined or a second parameter passed with the function name to run."
+            fi
+        else
+            # Run sub-command
+            $2
+        fi
+    else
+        die "$1 command not found."
+    fi
+fi

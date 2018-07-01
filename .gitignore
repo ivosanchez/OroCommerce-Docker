@@ -1,0 +1,7 @@
+.idea/
+.docker-volumes/
+data/*
+!data/.gitkeep
+conf/nginx/conf.d/certs/*
+!conf/nginx/conf.d/certs/.gitignore
+.env
