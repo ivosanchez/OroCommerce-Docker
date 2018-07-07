@@ -2,6 +2,6 @@
 .docker-volumes/
 data/*
 !data/.gitkeep
-conf/nginx/conf.d/certs/*
-!conf/nginx/conf.d/certs/.gitignore
+conf/httpd/certs/*
+!conf/httpd/certs/.gitkeep
 .env

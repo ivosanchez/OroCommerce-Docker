@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# Docker Compose alias commands so we never
+# have to manage multiple -f's (As we can just add them to the global)
+#
+
+main() {
+    $COMPOSE_COMMAND start
+}
+
+compose() {
+    $COMPOSE_COMMAND $@
+}
+
+# usage docker ssh {container}
+ssh() {
+    $COMPOSE_COMMAND exec $1 /bin/bash
+}
+
+ps() {
+    compose ps $@
+}
+
+up() {
+    compose up $@
+}
+
+down() {
+    compose down $@
+}
+
+stop() {
+    compose stop $@
+}
+
+start() {
+    compose start $@
+}
+
+restart() {
+    compose restart $@
+}

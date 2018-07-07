@@ -252,10 +252,6 @@ function ask_for_password {
   echo
 }
 
-#
-# FILE UTILITIES ---------------------------------------------------------------
-#
-
 # replace_in_files search replace file ...
 #
 # Replaces given string 'search' with 'replace' in given files.
@@ -298,4 +294,67 @@ function replace_in_files {
     fi
   done
 
+}
+
+#
+# Load assignments from a file passed to the function
+#
+function load_env {
+    while IFS='' read -r line || [[ -n "$line" ]]; do
+       export "$line"
+    done < "$1"
+}
+
+#
+# Credit for host management to: https://gist.github.com/Fuxy22/da4b7ca3bcb0bfea2c582964eafeb4ed
+#
+
+# remove specified host from /etc/hosts
+function remove_host() {
+    if [[ "$1" ]]
+    then
+        HOSTNAME=$1
+
+        if [ -n "$(grep $HOSTNAME /etc/hosts)" ]
+        then
+            echo "$HOSTNAME Found in your /etc/hosts, Removing now...";
+            sudo sed -i".bak" "/$HOSTNAME/d" /etc/hosts
+        else
+            echo "$HOSTNAME was not found in your /etc/hosts";
+        fi
+    else
+        echo "Error: missing required parameters."
+        echo "Usage: "
+        echo "  removehost domain"
+    fi
+}
+
+#add new ip host pair to /etc/hosts
+function add_host() {
+    if [[ "$1" && "$2" ]]
+    then
+        IP=$1
+        HOSTNAME=$2
+
+        if [ -n "$(grep $HOSTNAME /etc/hosts)" ]
+            then
+                echo "$HOSTNAME already exists:";
+                echo $(grep $HOSTNAME /etc/hosts);
+            else
+                echo "Adding $HOSTNAME to your /etc/hosts";
+                printf "%s\t%s\n" "$IP" "$HOSTNAME" | sudo tee -a /etc/hosts > /dev/null;
+
+                if [ -n "$(grep $HOSTNAME /etc/hosts)" ]
+                    then
+                        echo "$HOSTNAME was added succesfully:";
+                        echo $(grep $HOSTNAME /etc/hosts);
+                    else
+                        echo "Failed to Add $HOSTNAME, Try again!";
+                fi
+        fi
+    else
+        echo "Error: missing required parameters."
+        echo "Usage: "
+        echo "  addhost ip domain"
+    fi
 }

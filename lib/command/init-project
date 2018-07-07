@@ -1,10 +1,19 @@
 #!/bin/bash
 
 main() {
+    # Create env File and load it into this context
     create_env
     assert_file_exists $ENV_FILE
-    export ENV_FILE
+    load_env $ENV_FILE
+
+    # Build the containers
     build_containers
+
+    # Generate SSL Certificates
+    generate_ssl
+
+    # Update Hosts file with the domain
+    update_hosts
 }
 
 # Read each line of $DEFAULT_ENV_FILE and prompt the user for a value
@@ -12,23 +21,46 @@ create_env() {
     if [[ ! -f $ENV_FILE ]]; then
         info "Creating .env file from template. Please enter variables when prompted."
         local vars=()
+        # Load all the variables from from .env.default into an array
         while IFS='' read -r line || [[ -n "$line" ]]; do
             vars+=($line)
         done < "$DEFAULT_ENV_FILE"
 
-        # Todo: Fix UID: readonly variable error
+        # Prompt the user to set each variable
         for var in "${vars[@]}"
         do
             read -p "${var}: " ${var}
             echo "${var}=${!var}" >> $ENV_FILE
         done
+
+        # Add in the user and group ID's
+        echo "USER_ID=$(id -u)" >> $ENV_FILE
+        echo "GROUP_ID=$(id -g)" >> $ENV_FILE
     else
-        info ".env file already exists skipping creation."
+        info ".env file already exists skipping creation. Delete it before attempting to recreate."
     fi
 }
 
+# Build the docker containers
 build_containers() {
     info "Building docker containers..."
-    docker-compose -f ${DOCKER_COMPOSE_FILE} build
+    $COMPOSE_COMMAND build
     info "Container build complete!"
+}
+
+# Generate the SSL key and cert
+generate_ssl() {
+    info "Generating SSL Certificates..."
+    CERTS_DIR=$CONF_DIR/httpd/certs
+    openssl req -subj "/CN=${DOMAIN}" -x509 -newkey rsa:4096 -nodes -keyout "${CERTS_DIR}/${DOMAIN}.key" -out "${CERTS_DIR}/${DOMAIN}.crt" -days 365
+    info "SSL Certificate Generated!"
+}
+
+# Update /etc/hosts with an alias to ${DOMAIN}
+update_hosts() {
+    info "Updating /etc/hosts with a domain alias. If you are prompted please enter your password."
+    info "Checking if domain alias already exists and removing."
+    remove_host $DOMAIN
+    info "Recreating Host Alias"
+    add_host "127.0.0.1" $DOMAIN
 }
