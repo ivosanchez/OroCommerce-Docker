@@ -12,8 +12,9 @@ COMMAND_DIR="$LIB_DIR/command"
 CONF_DIR="$BASE_DIR/conf"
 ENV_FILE="$BASE_DIR/.env"
 DEFAULT_ENV_FILE="$BASE_DIR/.env.default"
-DOCKER_COMPOSE_FILE="$BASE_DIR/docker-compose.yml"
-COMPOSE_COMMAND="docker-compose -f ${DOCKER_COMPOSE_FILE}"
+DOCKER_COMPOSE_DIR="$BASE_DIR/docker/compose"
+DOCKER_COMPOSE_FILE="$DOCKER_COMPOSE_DIR/main.yml"
+COMPOSE_COMMAND="docker-compose -f ${DOCKER_COMPOSE_DIR}/*.yml "
 
 # Import utility functions
 source "$LIB_DIR/utils.sh"

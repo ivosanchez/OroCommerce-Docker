@@ -1,0 +1,42 @@
+version: '3.6'
+services:
+  php:
+    build:
+      context: ../../docker/php-fpm
+      args:
+        PHP_EXTENSIONS: "${PHP_EXTENSIONS}"
+        PHP_DEPENDENCIES: "${PHP_DEPENDENCIES}"
+        PECL_EXTENSIONS: "${PECL_EXTENSIONS}"
+        UID: "${USER_ID}"
+        GID: "${GROUP_ID}"
+    volumes:
+      - "../../conf/php/www.conf:/usr/local/etc/php-fpm.d/www.conf"
+      - "../../conf/php/global.ini:/usr/local/etc/php/conf.d/global.ini"
+      - "../../data:/data"
+    env_file:
+      - ../../.env
+
+  web:
+    build:
+      context: ../../docker/httpd
+      args:
+        UID: "${USER_ID}"
+        GID: "${GROUP_ID}"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "../../conf/httpd/conf.d:/usr/local/apache2/conf.d"
+      - "../../conf/httpd/certs:/usr/local/apache2/certs"
+      - "../../data:/data"
+    env_file:
+      - ../../.env
+
+  database:
+    image: mysql:5.7.22
+    volumes:
+      - "../../.docker-volumes/database:/var/lib/mysql"
+    ports:
+      - "3306:3306"
+    env_file:
+      - ../../.env
