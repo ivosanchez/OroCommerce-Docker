@@ -1,8 +1,8 @@
-##Arc Docker Environment
+## Arc Docker Environment
 Arc is a generic PHP, MYSQL, and Apache docker environment with some extra bash scripts to help you get a working 
 development up quickly and easily.
 
-###Creating a new Project
+### Creating a new Project
 To start up a new project clone this repository and then run the command below from the base directory. You will then be
 prompted to set the base project environment variables.
 ```
@@ -32,6 +32,6 @@ Docker - Any extra arguments are passed through to docker-compose
     ./ark docker restart 
 ```
 
-###Extending
+### Extending
 Any .yml file added to the docker/compose directory will be automatically included as part of the build process and added to the
 aliased docker commands. 
