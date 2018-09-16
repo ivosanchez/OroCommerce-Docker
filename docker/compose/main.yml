@@ -1,6 +1,9 @@
 version: '3.6'
 services:
   php:
+    image: ark/php
+    depends_on:
+      - database
     build:
       context: ../../docker/php-fpm
       args:
@@ -22,6 +25,9 @@ services:
       args:
         UID: "${USER_ID}"
         GID: "${GROUP_ID}"
+    depends_on:
+      - database
+      - php
     ports:
       - "80:80"
       - "443:443"
@@ -36,6 +42,8 @@ services:
     image: mysql:5.7.22
     volumes:
       - "../../.docker-volumes/database:/var/lib/mysql"
+    healthcheck:
+      test: 'mysqladmin ping --silent'
     ports:
       - "3306:3306"
     env_file:
