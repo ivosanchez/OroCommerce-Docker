@@ -3,11 +3,14 @@ Arc is a generic PHP, MYSQL, and Apache docker environment with some extra bash 
 development up quickly and easily.
 
 ### Creating a new Project
-To start up a new project clone this repository and then run the command below from the base directory. You will then be
-prompted to set the base project environment variables.
+To start up a new project clone this repository and then run the command below from the base directory. You will then be prompted to set the base project environment variables.
 ```
 ./ark init-project
 ```
+
+Once the build process is complete run `./ark docker up -d` to create and start the containers.
+
+All code should be placed in the data/ directory which will be mounted to each the (core) containers in /data.
 
 ### Commands
 ```
