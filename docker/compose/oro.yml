@@ -1,0 +1,72 @@
+version: '3.6'
+services:
+  php:
+    depends_on:
+      - redis
+
+  web:
+    depends_on:
+      - redis
+
+  consumer:
+    image: ark/php
+    depends_on:
+      - redis
+      - database
+      - php
+      - web
+    volumes:
+      - "../../conf/php/www.conf:/usr/local/etc/php-fpm.d/www.conf"
+      - "../../conf/php/global.ini:/usr/local/etc/php/conf.d/global.ini"
+      - "../../data:/data"
+    env_file:
+      - ../../.env
+    working_dir: "/data"
+    restart: on-failure
+    user: $USER_ID:$GROUP_ID
+    command: 'php bin/console oro:message-queue:consume --env=dev -v'
+
+  websockets:
+    image: ark/php
+    depends_on:
+      - redis
+      - database
+      - php
+      - web
+    volumes:
+      - "../../conf/php/www.conf:/usr/local/etc/php-fpm.d/www.conf"
+      - "../../conf/php/global.ini:/usr/local/etc/php/conf.d/global.ini"
+      - "../../data:/data"
+    env_file:
+      - ../../.env
+    user: $USER_ID:$GROUP_ID
+    working_dir: "/data"
+    restart: on-failure
+    command: 'php bin/console gos:websocket:server --env=dev -v'
+
+  cron:
+    build:
+      context: ../../docker/cron
+    depends_on:
+      - redis
+      - database
+      - web
+      - php
+    volumes:
+      - "../../conf/php/www.conf:/usr/local/etc/php-fpm.d/www.conf"
+      - "../../conf/php/global.ini:/usr/local/etc/php/conf.d/global.ini"
+      - "../../data:/data"
+    restart: on-failure
+
+  mail:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  redis:
+    image: redis:latest
+    volumes:
+      - "../../.docker-volumes/redis:/data"
+    ports:
+      - "6379:6379"
