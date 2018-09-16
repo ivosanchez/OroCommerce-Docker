@@ -4,4 +4,3 @@ data/*
 !data/.gitkeep
 conf/httpd/certs/*
 !conf/httpd/certs/.gitkeep
-.env
