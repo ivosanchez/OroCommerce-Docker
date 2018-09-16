@@ -14,7 +14,7 @@ compose() {
 
 # usage docker ssh {container}
 ssh() {
-    $COMPOSE_COMMAND exec $1 /bin/bash
+    $COMPOSE_COMMAND exec --user $USER_ID:$GROUP_ID $1 /bin/bash
 }
 
 ps() {

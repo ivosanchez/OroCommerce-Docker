@@ -15,3 +15,5 @@ RUN apt-get update \
 
 RUN usermod -u $UID www-data \ 
     && groupmod -g $GID www-data
+
+COPY --from=composer:1.7 /usr/bin/composer /usr/bin/composer
